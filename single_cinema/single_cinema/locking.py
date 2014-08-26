@@ -1,7 +1,6 @@
 from amqplib import client_0_8 as cli
 
 QUEUE_NAME = 'lock_queue'
-QUEUE_SIZE = 1
 
 class Queue(object):
     def __init__(self):
@@ -9,7 +8,6 @@ class Queue(object):
         self.channel = cli.Channel(self.connection)
         self.channel.queue_delete(queue=QUEUE_NAME)
         self.channel.queue_declare(queue=QUEUE_NAME)
-        # for item in xrange(QUEUE_SIZE):
         self.channel.basic_publish(exchange='', routing_key=QUEUE_NAME, msg=cli.Message())
 
 class Mutex(object):
@@ -33,8 +31,3 @@ class Mutex(object):
             self.msg = None
             self.busy = False
             self.owner = None
-
-# if __name__ == '__main__':
-    # server = LockServ()
-    # client = LockCli()
-

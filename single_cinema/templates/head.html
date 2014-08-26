@@ -1,0 +1,12 @@
+<div class="masthead clearfix">
+    <div class="inner">
+{#          <h3 class="masthead-brand">Single user cinema</h3>#}
+            {% if menu %}
+                <ul class="nav masthead-nav">
+                    {% for item in menu %}
+                        <li><a href="{{ item.url }}">{{ item }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+    </div>
+</div>

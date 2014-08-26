@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block headblock %}
+    {% include 'head.html' with menu=menu %}
+{% endblock %}
+
+{% block mainblock %}
+    <div class="inner cover">
+            <h1 class="cover-heading">Single user cinema</h1>
+            <p class="lead">You are able to watch some video. Just push the button below.</p>
+            <p class="lead">
+              <a href="{{ video_url }}" class="btn btn-lg btn-default">Start watching</a>
+            </p>
+          </div>
+{% endblock %}

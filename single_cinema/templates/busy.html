@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block headblock %}
+    {% include 'head.html' with menu=menu %}
+{% endblock %}
+
+{% block mainblock %}
+    <div class="inner cover">
+            <h1 class="cover-heading">Sorry,</h1>
+            <p class="lead">you can't watch this video because of another user who is watching this video now.</p>
+            <p class="lead">
+              <a href="{{ try_again_url }}" class="btn btn-lg btn-default">Try again</a>
+            </p>
+          </div>
+{% endblock %}

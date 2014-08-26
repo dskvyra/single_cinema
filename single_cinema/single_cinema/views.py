@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render_to_response, RequestContext
+from django.shortcuts import render_to_response, RequestContext, HttpResponseRedirect
+from locking import Queue, Mutex
+
+queue = Queue()
+mutex = Mutex()
+
 
 def decode_url(url):
     """ Takes url string, returns title string with spaces instead underlines """
     return url.replace('_', ' ')
+
 
 def encode_url(title):
     """ Takes title string, swaps spaces by underlines and returns url string """
@@ -29,7 +35,6 @@ def get_menu():
 
     return menu
 
-MENU = get_menu()
 
 def index(request):
     context = RequestContext(request)
@@ -41,18 +46,32 @@ def index(request):
                                'video_url': video_url},
                               context)
 
-def video(request):
-    context = RequestContext(request)
-    stop_url = '/'
 
-    return render_to_response('video.html',
-                              {'stop_url': stop_url},
-                              context)
+def video(request):
+    if mutex.busy:
+        return HttpResponseRedirect('/busy')
+
+    context = RequestContext(request)
+    stop_url = 'stop'
+    owner = request.COOKIES.get('sessionid')
+
+    mutex.aquire(owner)
+
+    return render_to_response('video.html', {'stop_url': stop_url}, context)
+
 
 def busy(request):
     context = RequestContext(request)
-    try_again_url = '/video'
+    try_again_url = 'video'
 
     return render_to_response('busy.html',
                               {'try_again_url': try_again_url},
                               context)
+
+
+def stop(request):
+    owner = request.COOKIES.get('sessionid')
+
+    mutex.release(owner)
+
+    return HttpResponseRedirect('index')

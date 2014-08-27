@@ -49,6 +49,7 @@ def video(request):
 
     context = RequestContext(request)
     stop_url = 'stop'
+    import ipdb; ipdb.set_trace()
     owner = request.COOKIES.get('sessionid')
 
     mutex.aquire(owner)

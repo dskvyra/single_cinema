@@ -3,10 +3,7 @@ from django.shortcuts import (render_to_response,
                               RequestContext,
                               HttpResponseRedirect,)
 from django.core.urlresolvers import reverse
-from locking import Queue, Mutex
-
-queue = Queue()
-mutex = Mutex()
+from locking_tools import get_message, put_message
 
 
 def decode_url(url):
@@ -35,6 +32,7 @@ MENU = get_menu()
 
 
 def index(request):
+    print 'INDEX'
     context = RequestContext(request)
     video_url = reverse(video)
 
@@ -45,15 +43,14 @@ def index(request):
 
 
 def video(request):
-    if mutex.busy:
-        return HttpResponseRedirect('/busy')
+    print 'VIDEO'
+    access = get_message()
+
+    if not access:
+        return HttpResponseRedirect(reverse(busy))
 
     context = RequestContext(request)
     stop_url = reverse(stop)
-    # import ipdb; ipdb.set_trace()
-    owner = request.session.session_key
-
-    mutex.aquire(owner)
 
     return render_to_response('video.html', {'stop_url': stop_url}, context)
 
@@ -69,8 +66,7 @@ def busy(request):
 
 
 def stop(request):
-    owner = request.session.session_key
-
-    mutex.release(owner)
+    print 'STOP'
+    put_message()
 
     return HttpResponseRedirect(reverse(index))

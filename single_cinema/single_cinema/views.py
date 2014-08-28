@@ -50,13 +50,11 @@ def video(request):
     if not access:
         return HttpResponseRedirect(reverse(busy))
 
-    context = RequestContext(request)
-    stop_url = 'stop'
+    stop_url = reverse(stop, args=(crypt(request.session.session_key),))
 
     return render_to_response('video.html',
-                              {'stop_url': stop_url,
-                               'key': crypt(request.session.session_key)},
-                              context)
+                              {'stop_url': stop_url},
+                              RequestContext(request))
 
 
 def busy(request):

@@ -20,5 +20,5 @@ urlpatterns = patterns('',
     url(r'^home$', views.index, name='home'),
     url(r'^busy$', views.busy, name='busy'),
     url(r'^video$', views.video, name='video'),
-    url(r'^stop$', views.stop, name='stop'),
+    url(r'^stop/(?P<key>-?\d+)$', views.stop, name='stop'),
 )

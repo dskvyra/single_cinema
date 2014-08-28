@@ -6,6 +6,12 @@ from django.core.urlresolvers import reverse
 from locking_tools import get_message, put_message
 
 
+def crypt(key):
+    salt = 42
+
+    return hash(key) + salt
+
+
 def decode_url(url):
     return url.replace('_', ' ')
 
@@ -14,7 +20,7 @@ def encode_url(title):
     return title.replace(' ', '_')
 
 
-def get_menu():
+def get_menu(items):
     class MenuItem(object):
         def __init__(self, name):
             self.name = name
@@ -23,50 +29,45 @@ def get_menu():
         def __unicode__(self):
             return self.name.capitalize()
 
-    items = ('home',)
     menu = (MenuItem(item) for item in items)
 
     return tuple(menu)
 
-MENU = get_menu()
+
+MENU = get_menu(('home',))
 
 
 def index(request):
-    print 'INDEX'
-    context = RequestContext(request)
-    video_url = reverse(video)
-
     return render_to_response('index.html',
                               {'menu': MENU,
-                               'video_url': video_url},
-                              context)
+                               'video_url': reverse(video)},
+                              RequestContext(request))
 
 
 def video(request):
-    print 'VIDEO'
     access = get_message()
 
     if not access:
         return HttpResponseRedirect(reverse(busy))
 
     context = RequestContext(request)
-    stop_url = reverse(stop)
+    stop_url = 'stop'
 
-    return render_to_response('video.html', {'stop_url': stop_url}, context)
-
-
-def busy(request):
-    context = RequestContext(request)
-    try_again_url = reverse(video)
-
-    return render_to_response('busy.html',
-                              {'try_again_url': try_again_url,
-                               'menu': MENU},
+    return render_to_response('video.html',
+                              {'stop_url': stop_url,
+                               'key': crypt(request.session.session_key)},
                               context)
 
 
-def stop(request):
-    print 'STOP'
-    put_message()
+def busy(request):
+    return render_to_response('busy.html',
+                              {'try_again_url': reverse(video),
+                               'menu': MENU},
+                              RequestContext(request))
+
+
+def stop(request, key=''):
+    if int(key) == crypt(request.session.session_key):
+        put_message()
 
     return HttpResponseRedirect(reverse(index))
